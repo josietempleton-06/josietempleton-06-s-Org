@@ -38,7 +38,6 @@
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
       border-left: 6px solid #ef4444;
     }
-    ::selection { background: #e0e7ff; color: #4338ca; }
   </style>
 
   <script>
@@ -49,7 +48,7 @@
       if (debugDiv) {
         debugDiv.style.display = 'block';
         debugDiv.textContent = '🚨 Aura System Error:\n' + msg + '\n\nFile: ' + (url || 'unknown') + 
-                               '\n\n💡 TROUBLESHOOTING:\n1. The "netlify.toml" file is likely missing or hasn\'t finished deploying.\n2. Ensure all files are in the root directory (not inside a "src" folder).\n3. Check your Netlify "Deploys" tab to see if the last build succeeded.';
+                               '\n\n💡 REFRESH THE PAGE: The netlify.toml fix is being applied. If error persists, ensure no "src" folder exists.';
       }
       return false;
     };
@@ -71,7 +70,6 @@
 </head>
 <body class="text-slate-900">
   <div id="root">
-    <!-- Simple splash loader -->
     <div class="min-h-screen flex items-center justify-center bg-[#FDFCFB]">
       <div class="animate-pulse flex flex-col items-center">
         <div class="w-12 h-12 bg-indigo-200 rounded-full mb-4"></div>
