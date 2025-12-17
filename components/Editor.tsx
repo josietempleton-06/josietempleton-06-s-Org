@@ -19,41 +19,58 @@ const Editor: React.FC<EditorProps> = ({ userId, existingEntry, onSave, onCancel
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Sync with Dashboard's theme logic for consistent Aura experience
+  // Dynamic Theme Engine: Fixes visibility issues on dark/gray backgrounds
   const theme = useMemo(() => {
-    const base = {
+    const defaultTheme = {
       bg: 'bg-white',
       title: 'text-slate-900',
       content: 'text-slate-700',
-      placeholder: 'placeholder:text-slate-200',
+      placeholder: 'placeholder:text-slate-300',
       meta: 'text-slate-400',
-      header: 'bg-white/95 border-slate-50'
+      header: 'bg-white/95 border-slate-50',
+      inputBg: 'bg-transparent'
     };
 
-    if (!mood) return base;
+    if (!mood) return defaultTheme;
     const m = mood.toLowerCase();
 
-    // Catch-all for dark/neutral moods to ensure white text visibility
-    if (m.includes('neutral') || m.includes('gray') || m.includes('reflect') || m.includes('stoic') || m.includes('calm') || m.includes('focus')) {
+    // DARK/GRAY AURA: Force White Text
+    if (m.includes('neutral') || m.includes('gray') || m.includes('reflect') || 
+        m.includes('stoic') || m.includes('calm') || m.includes('focus') || m.includes('serious')) {
       return {
         bg: 'bg-slate-800',
         title: 'text-white',
         content: 'text-slate-200',
         placeholder: 'placeholder:text-slate-500',
         meta: 'text-slate-400',
-        header: 'bg-slate-900/95 border-slate-800'
+        header: 'bg-slate-900/95 border-slate-800',
+        inputBg: 'bg-transparent'
       };
     }
     
-    if (m.includes('happy') || m.includes('joy') || m.includes('excit')) {
-      return { ...base, bg: 'bg-amber-50/30', title: 'text-amber-900', content: 'text-amber-800' };
+    // WARM/HAPPY AURA
+    if (m.includes('happy') || m.includes('joy') || m.includes('excit') || m.includes('bright')) {
+      return { 
+        ...defaultTheme, 
+        bg: 'bg-amber-50/50', 
+        title: 'text-amber-950', 
+        content: 'text-amber-900',
+        placeholder: 'placeholder:text-amber-200' 
+      };
     }
 
-    if (m.includes('sad') || m.includes('blue') || m.includes('lonely')) {
-      return { ...base, bg: 'bg-blue-50/30', title: 'text-blue-900', content: 'text-blue-800' };
+    // BLUE/CALM AURA
+    if (m.includes('sad') || m.includes('blue') || m.includes('lonely') || m.includes('melancholy')) {
+      return { 
+        ...defaultTheme, 
+        bg: 'bg-blue-50/50', 
+        title: 'text-blue-950', 
+        content: 'text-blue-900',
+        placeholder: 'placeholder:text-blue-200' 
+      };
     }
 
-    return base;
+    return defaultTheme;
   }, [mood]);
 
   const counts = useMemo(() => ({
@@ -79,7 +96,6 @@ const Editor: React.FC<EditorProps> = ({ userId, existingEntry, onSave, onCancel
   const handleSave = async () => {
     if (!title.trim() || !content.trim()) return;
     setIsSaving(true);
-    
     try {
       const entry: JournalEntry = {
         id: existingEntry?.id || crypto.randomUUID(),
@@ -91,23 +107,22 @@ const Editor: React.FC<EditorProps> = ({ userId, existingEntry, onSave, onCancel
         mood: mood || undefined,
         aiSummary: summary || undefined,
       };
-
       await onSave(entry);
     } catch (error) {
-      console.error("Failed to save entry:", error);
-      alert("Something went wrong while saving your reflection.");
+      console.error("Failed to save:", error);
+      alert("Error saving reflection.");
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-700 ${theme.bg}`}>
-      {/* Top Bar */}
-      <header className={`h-24 border-b sticky top-0 backdrop-blur-md z-20 flex items-center justify-between px-8 transition-colors duration-700 ${theme.header}`}>
+    <div className={`min-h-screen transition-colors duration-1000 ${theme.bg}`}>
+      {/* Top Navigation Bar */}
+      <header className={`h-24 border-b sticky top-0 backdrop-blur-md z-20 flex items-center justify-between px-8 transition-colors duration-1000 ${theme.header}`}>
         <button
           onClick={onCancel}
-          className={`group flex items-center space-x-3 transition-all font-bold uppercase tracking-widest text-[10px] ${mood && theme.bg.includes('slate-800') ? 'text-slate-500 hover:text-white' : 'text-slate-400 hover:text-slate-900'}`}
+          className={`group flex items-center space-x-3 transition-all font-bold uppercase tracking-widest text-[10px] ${theme.bg.includes('slate-800') ? 'text-slate-500 hover:text-white' : 'text-slate-400 hover:text-slate-900'}`}
         >
           <div className="p-2 rounded-lg transition-colors group-hover:bg-black/5">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,7 +157,7 @@ const Editor: React.FC<EditorProps> = ({ userId, existingEntry, onSave, onCancel
         </div>
       </header>
 
-      {/* Editor Main */}
+      {/* Main Editing Area */}
       <main className="max-w-4xl mx-auto p-8 md:pt-20 pb-40">
         <div className="space-y-12">
           <div className="space-y-6">
@@ -175,7 +190,6 @@ const Editor: React.FC<EditorProps> = ({ userId, existingEntry, onSave, onCancel
               className={`w-full min-h-[500px] text-xl md:text-2xl leading-relaxed outline-none border-none resize-none font-serif bg-transparent transition-colors duration-700 ${theme.content} ${theme.placeholder}`}
             />
             
-            {/* Counts */}
             <div className={`absolute -bottom-10 right-0 flex items-center space-x-6 text-[10px] font-black uppercase tracking-widest ${theme.meta}`}>
               <div className="flex items-center space-x-2">
                 <span className="opacity-50">Words</span>
@@ -189,7 +203,7 @@ const Editor: React.FC<EditorProps> = ({ userId, existingEntry, onSave, onCancel
           </div>
         </div>
 
-        {/* AI Insights Section */}
+        {/* AI Analysis View */}
         {(summary || advice) && (
           <div className={`mt-24 p-12 rounded-[3rem] border space-y-10 animate-in slide-in-from-bottom-8 duration-500 ${theme.bg.includes('slate-800') ? 'bg-slate-900/50 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
             <div className="flex items-center justify-between">
@@ -211,13 +225,10 @@ const Editor: React.FC<EditorProps> = ({ userId, existingEntry, onSave, onCancel
                   <p className={`leading-relaxed text-lg font-serif italic ${theme.content}`}>"{summary}"</p>
                 </div>
               )}
-
               {advice && (
                 <div className="space-y-4">
                   <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme.meta}`}>Encouragement</p>
-                  <p className={`leading-relaxed text-lg font-serif ${theme.content}`}>
-                    {advice}
-                  </p>
+                  <p className={`leading-relaxed text-lg font-serif ${theme.content}`}>{advice}</p>
                 </div>
               )}
             </div>
