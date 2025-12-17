@@ -30,32 +30,40 @@
       background: #fee2e2;
       border: 1px solid #ef4444;
       color: #991b1b;
-      padding: 1rem;
-      border-radius: 0.75rem;
+      padding: 1.5rem;
+      border-radius: 1rem;
       z-index: 9999;
       font-family: monospace;
-      font-size: 12px;
+      font-size: 13px;
       white-space: pre-wrap;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      border-left: 6px solid #ef4444;
     }
   </style>
 
   <script>
-    // Critical: Initialize process.env before anything else loads
+    // Robust environment shim
     window.process = window.process || {};
     window.process.env = window.process.env || {};
-    // This will be used by the @google/genai SDK
-    window.process.env.API_KEY = ""; 
+    
+    // Only set a default if the environment hasn't provided one
+    if (typeof window.process.env.API_KEY === 'undefined') {
+      window.process.env.API_KEY = ""; 
+    }
 
-    // Improved error helper
+    // Advanced error listener for debugging deployment issues
     window.onerror = function(msg, url, lineNo, columnNo, error) {
       const debugDiv = document.getElementById('debug-error');
       if (debugDiv) {
         debugDiv.style.display = 'block';
-        debugDiv.textContent = 'Aura Load Error:\n' + msg + 
-                               '\nFile: ' + (url || 'unknown') + 
-                               '\nLine: ' + lineNo + ':' + columnNo +
-                               '\n\nPossible cause: Check if Netlify has finished deploying the netlify.toml file.';
+        let detail = '🚨 Aura System Error:\n' + msg;
+        if (url) detail += '\nSource: ' + url;
+        
+        if (msg.toLowerCase().includes("could not load") || msg.toLowerCase().includes("failed to fetch")) {
+          detail += '\n\n💡 TROUBLESHOOTING:\n1. The "netlify.toml" file is likely missing or hasn\'t finished deploying.\n2. Ensure all files are in the root directory (not inside a "src" folder).\n3. Check your Netlify "Deploys" tab to see if the last build succeeded.';
+        }
+        
+        debugDiv.textContent = detail;
       }
       return false;
     };
@@ -79,7 +87,7 @@
   <div id="root"></div>
   <div id="debug-error"></div>
   
-  <!-- Use data-type="module" so Babel knows to handle imports -->
+  <!-- data-type="module" is the secret sauce for Babel to handle relative imports correctly -->
   <script type="text/babel" data-type="module" data-presets="react,typescript" src="index.tsx" crossorigin></script>
 </body>
 </html>
