@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,7 +17,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
 
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #FDFCFB; }
+    body { font-family: 'Inter', sans-serif; background-color: #FDFCFB; scroll-behavior: smooth; }
     .font-serif { font-family: 'Merriweather', serif; }
     input, textarea { background-color: transparent !important; }
     #debug-error {
@@ -36,34 +35,21 @@
       font-family: monospace;
       font-size: 13px;
       white-space: pre-wrap;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
       border-left: 6px solid #ef4444;
     }
+    ::selection { background: #e0e7ff; color: #4338ca; }
   </style>
 
   <script>
-    // Robust environment shim
-    window.process = window.process || {};
-    window.process.env = window.process.env || {};
-    
-    // Only set a default if the environment hasn't provided one
-    if (typeof window.process.env.API_KEY === 'undefined') {
-      window.process.env.API_KEY = ""; 
-    }
+    window.process = window.process || { env: { API_KEY: "" } };
 
-    // Advanced error listener for debugging deployment issues
     window.onerror = function(msg, url, lineNo, columnNo, error) {
       const debugDiv = document.getElementById('debug-error');
       if (debugDiv) {
         debugDiv.style.display = 'block';
-        let detail = '🚨 Aura System Error:\n' + msg;
-        if (url) detail += '\nSource: ' + url;
-        
-        if (msg.toLowerCase().includes("could not load") || msg.toLowerCase().includes("failed to fetch")) {
-          detail += '\n\n💡 TROUBLESHOOTING:\n1. The "netlify.toml" file is likely missing or hasn\'t finished deploying.\n2. Ensure all files are in the root directory (not inside a "src" folder).\n3. Check your Netlify "Deploys" tab to see if the last build succeeded.';
-        }
-        
-        debugDiv.textContent = detail;
+        debugDiv.textContent = '🚨 Aura System Error:\n' + msg + '\n\nFile: ' + (url || 'unknown') + 
+                               '\n\n💡 TROUBLESHOOTING:\n1. The "netlify.toml" file is likely missing or hasn\'t finished deploying.\n2. Ensure all files are in the root directory (not inside a "src" folder).\n3. Check your Netlify "Deploys" tab to see if the last build succeeded.';
       }
       return false;
     };
@@ -84,10 +70,17 @@
 </script>
 </head>
 <body class="text-slate-900">
-  <div id="root"></div>
+  <div id="root">
+    <!-- Simple splash loader -->
+    <div class="min-h-screen flex items-center justify-center bg-[#FDFCFB]">
+      <div class="animate-pulse flex flex-col items-center">
+        <div class="w-12 h-12 bg-indigo-200 rounded-full mb-4"></div>
+        <p class="text-slate-400 font-medium">Opening your sanctuary...</p>
+      </div>
+    </div>
+  </div>
   <div id="debug-error"></div>
   
-  <!-- data-type="module" is the secret sauce for Babel to handle relative imports correctly -->
   <script type="text/babel" data-type="module" data-presets="react,typescript" src="index.tsx" crossorigin></script>
 </body>
 </html>
