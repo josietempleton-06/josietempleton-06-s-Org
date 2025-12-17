@@ -1,12 +1,8 @@
 
-import { JournalEntry } from '../types';
-import { supabase } from '../supabaseClient';
+import { JournalEntry } from '../types.ts';
+import { supabase } from '../supabaseClient.ts';
 
 export const journalService = {
-  /**
-   * Fetches all journal entries for a specific user.
-   * Maps snake_case database columns to camelCase frontend types.
-   */
   getEntries: async (userId: string): Promise<JournalEntry[]> => {
     const { data, error } = await supabase
       .from('journal_entries')
@@ -31,12 +27,7 @@ export const journalService = {
     }));
   },
 
-  /**
-   * Saves or updates a journal entry in the journal_entries table.
-   * Ensures user_id field is correctly linked as per requirements.
-   */
   saveEntry: async (entry: JournalEntry): Promise<JournalEntry> => {
-    // Explicit mapping to the database columns mentioned in prerequisites
     const row = {
       id: entry.id,
       user_id: entry.userId,
@@ -60,9 +51,6 @@ export const journalService = {
     return entry;
   },
 
-  /**
-   * Deletes an entry by its ID.
-   */
   deleteEntry: async (entryId: string): Promise<void> => {
     const { error } = await supabase
       .from('journal_entries')

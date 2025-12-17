@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { authService } from '../services/authService';
-import { User } from '../types';
+import { authService } from '../services/authService.ts';
+import { User } from '../types.ts';
 
 interface AuthFormProps {
   onSuccess: (user: User) => void;

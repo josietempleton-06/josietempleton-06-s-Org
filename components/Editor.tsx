@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
-import { JournalEntry } from '../types';
-import { geminiService } from '../services/geminiService';
+import { JournalEntry } from '../types.ts';
+import { geminiService } from '../services/geminiService.ts';
 
 interface EditorProps {
   userId: string;
@@ -33,7 +33,8 @@ const Editor: React.FC<EditorProps> = ({ userId, existingEntry, onSave, onCancel
     if (!mood) return base;
     const m = mood.toLowerCase();
 
-    if (m.includes('neutral') || m.includes('gray') || m.includes('reflect') || m.includes('stoic') || m.includes('calm')) {
+    // Catch-all for dark/neutral moods to ensure white text visibility
+    if (m.includes('neutral') || m.includes('gray') || m.includes('reflect') || m.includes('stoic') || m.includes('calm') || m.includes('focus')) {
       return {
         bg: 'bg-slate-800',
         title: 'text-white',

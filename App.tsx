@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { User, JournalEntry, AppView } from './types';
-import { authService } from './services/authService';
-import { journalService } from './services/journalService';
-import AuthForm from './components/AuthForm';
-import Dashboard from './components/Dashboard';
-import Editor from './components/Editor';
-import Landing from './components/Landing';
+import { User, JournalEntry, AppView } from './types.ts';
+import { authService } from './services/authService.ts';
+import { journalService } from './services/journalService.ts';
+import AuthForm from './components/AuthForm.tsx';
+import Dashboard from './components/Dashboard.tsx';
+import Editor from './components/Editor.tsx';
+import Landing from './components/Landing.tsx';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -16,20 +16,29 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchEntries = async (userId: string) => {
-    const userEntries = await journalService.getEntries(userId);
-    setEntries(userEntries);
+    try {
+      const userEntries = await journalService.getEntries(userId);
+      setEntries(userEntries);
+    } catch (err) {
+      console.error("Failed to fetch entries", err);
+    }
   };
 
   // Initialize Auth
   useEffect(() => {
     const checkUser = async () => {
-      const currentUser = await authService.getCurrentUser();
-      if (currentUser) {
-        setUser(currentUser);
-        await fetchEntries(currentUser.id);
-        setView(AppView.DASHBOARD);
+      try {
+        const currentUser = await authService.getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+          await fetchEntries(currentUser.id);
+          setView(AppView.DASHBOARD);
+        }
+      } catch (err) {
+        console.error("Auth check failed", err);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
     checkUser();
   }, []);
